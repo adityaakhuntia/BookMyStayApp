@@ -17,5 +17,10 @@ abstract class Room {
         System.out.println("Room Type: " + type);
         System.out.println("Beds: " + beds);
         System.out.println("Price: ₹" + price);
+
     }
+    public String getType() {
+    return type;
+}
+
 }
