@@ -2,51 +2,45 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Concurrent Booking Simulation =====");
+        System.out.println("===== System Recovery Demo =====");
 
-        RoomInventory inventory = new RoomInventory();
+        PersistenceService persistence = new PersistenceService();
+
+        RoomInventory inventory;
+        BookingHistory history;
+
+        // 🔥 LOAD STATE
+        Object[] data = persistence.load();
+
+        if (data != null) {
+            inventory = (RoomInventory) data[0];
+            history = (BookingHistory) data[1];
+        } else {
+            inventory = new RoomInventory();
+            history = new BookingHistory();
+        }
+
         BookingRequestQueue queue = new BookingRequestQueue();
-        BookingHistory history = new BookingHistory();
         CancellationService cancellationService =
                 new CancellationService(inventory, history);
 
-        // MANY requests (simulate load)
-        queue.addRequest(new Reservation("A", "Suite Room"));
-        queue.addRequest(new Reservation("B", "Suite Room"));
-        queue.addRequest(new Reservation("C", "Suite Room"));
-        queue.addRequest(new Reservation("D", "Suite Room"));
-        queue.addRequest(new Reservation("E", "Suite Room"));
-
-        queue.addRequest(new Reservation("F", "Single Room"));
-        queue.addRequest(new Reservation("G", "Single Room"));
-        queue.addRequest(new Reservation("H", "Single Room"));
+        // Add new bookings
+        queue.addRequest(new Reservation("Aditya", "Single Room"));
+        queue.addRequest(new Reservation("Rahul", "Suite Room"));
 
         BookingService bookingService =
                 new BookingService(inventory, queue, history, cancellationService);
 
-        // 🔥 MULTIPLE THREADS
-        BookingWorker t1 = new BookingWorker(bookingService, "Thread-1");
-        BookingWorker t2 = new BookingWorker(bookingService, "Thread-2");
-        BookingWorker t3 = new BookingWorker(bookingService, "Thread-3");
+        bookingService.processBookings();
 
-        t1.start();
-        t2.start();
-        t3.start();
-
-        try {
-            t1.join();
-            t2.join();
-            t3.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("\n--- FINAL REPORT ---");
-
+        // Show history
         BookingReportService reportService =
                 new BookingReportService(history);
 
         reportService.showAllBookings();
         reportService.generateSummary();
+
+        // 🔥 SAVE STATE BEFORE EXIT
+        persistence.save(inventory, history);
     }
 }

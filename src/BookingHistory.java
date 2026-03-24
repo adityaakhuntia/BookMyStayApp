@@ -1,7 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
-class BookingHistory {
+class BookingHistory implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private List<Reservation> history;
 
@@ -9,12 +12,10 @@ class BookingHistory {
         history = new ArrayList<>();
     }
 
-    // Add confirmed booking
     public void addBooking(Reservation reservation) {
         history.add(reservation);
     }
 
-    // Get all bookings
     public List<Reservation> getAllBookings() {
         return history;
     }

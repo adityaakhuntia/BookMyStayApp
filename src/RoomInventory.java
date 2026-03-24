@@ -1,6 +1,9 @@
 import java.util.HashMap;
+import java.io.Serializable;
 
-class RoomInventory {
+class RoomInventory implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private HashMap<String, Integer> inventory;
 
@@ -22,8 +25,7 @@ class RoomInventory {
         int current = inventory.getOrDefault(roomType, 0);
 
         if (current <= 0) {
-            throw new InvalidBookingException(
-                    "No rooms left for " + roomType);
+            throw new InvalidBookingException("No rooms left for " + roomType);
         }
 
         inventory.put(roomType, current - 1);

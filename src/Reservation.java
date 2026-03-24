@@ -1,13 +1,8 @@
-/**
- * Reservation - Represents a booking request
- * 
- * This class stores guest intent to book a room.
- * No allocation happens here.
- * 
- * @author Aditya Khuntia
- * @version 1.0
- */
-class Reservation {
+import java.io.Serializable;
+
+class Reservation implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String guestName;
     private String roomType;
