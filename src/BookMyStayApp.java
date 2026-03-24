@@ -4,21 +4,23 @@ public class BookMyStayApp {
 
         System.out.println("===== Welcome to BookMyStayApp v1.0 =====");
 
-        // Room objects
-        Room single = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suite = new SuiteRoom();
-
-        // Store in array (for polymorphism)
-        Room[] rooms = {single, doubleRoom, suite};
-
-        // Inventory
+        // Inventory (still read-only here)
         RoomInventory inventory = new RoomInventory();
 
-        // Search service
-        RoomSearchService searchService = new RoomSearchService(inventory);
+        // Queue for booking requests
+        BookingRequestQueue requestQueue = new BookingRequestQueue();
 
-        // Perform search (READ ONLY)
-        searchService.searchAvailableRooms(rooms);
+        // Sample booking requests
+        Reservation r1 = new Reservation("Aditya", "Single Room");
+        Reservation r2 = new Reservation("Rahul", "Double Room");
+        Reservation r3 = new Reservation("Priya", "Suite Room");
+
+        // Add to queue (FIFO)
+        requestQueue.addRequest(r1);
+        requestQueue.addRequest(r2);
+        requestQueue.addRequest(r3);
+
+        // Display queue
+        requestQueue.displayQueue();
     }
 }
