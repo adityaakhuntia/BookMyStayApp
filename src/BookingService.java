@@ -7,10 +7,12 @@ class BookingService {
     private RoomInventory inventory;
     private BookingRequestQueue queue;
     private HashMap<String, Set<String>> allocatedRooms;
+    private BookingHistory history; // NEW
 
-    public BookingService(RoomInventory inventory, BookingRequestQueue queue) {
+    public BookingService(RoomInventory inventory, BookingRequestQueue queue, BookingHistory history) {
         this.inventory = inventory;
         this.queue = queue;
+        this.history = history;
         allocatedRooms = new HashMap<>();
     }
 
@@ -35,12 +37,12 @@ class BookingService {
 
                 inventory.reduceAvailability(roomType);
 
-                String reservationId = roomId; // using roomId as reservationId
-                System.out.println("Booking CONFIRMED for " +
-        request.getGuestName() +
-        " | Reservation ID: " + reservationId);
+                // ✅ ADD TO HISTORY
+                history.addBooking(request);
 
-                        
+                System.out.println("Booking CONFIRMED for " +
+                        request.getGuestName() +
+                        " | Room ID: " + roomId);
 
             } else {
                 System.out.println("Booking FAILED for " +
@@ -53,25 +55,4 @@ class BookingService {
     private String generateRoomId(String roomType) {
         return roomType.substring(0, 2).toUpperCase() + "-" + System.nanoTime();
     }
-
-    public String processSingleBooking(Reservation request) {
-
-    String roomType = request.getRoomType();
-    int available = inventory.getAvailability(roomType);
-
-    if (available > 0) {
-
-        String roomId = generateRoomId(roomType);
-
-        allocatedRooms
-                .computeIfAbsent(roomType, k -> new HashSet<>())
-                .add(roomId);
-
-        inventory.reduceAvailability(roomType);
-
-        return roomId; // reservation ID
-    }
-
-    return null;
-}
 }
