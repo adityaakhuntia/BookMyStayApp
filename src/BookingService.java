@@ -8,7 +8,7 @@ class BookingService {
     private BookingRequestQueue queue;
     private HashMap<String, Set<String>> allocatedRooms;
     private BookingHistory history;
-    private CancellationService cancellationService; // NEW
+    private CancellationService cancellationService;
 
     public BookingService(RoomInventory inventory,
                           BookingRequestQueue queue,
@@ -24,39 +24,48 @@ class BookingService {
 
     public void processBookings() {
 
-        System.out.println("\n--- Processing Bookings ---");
-
         Reservation request;
 
-        while ((request = queue.getNextRequest()) != null) {
+        while (true) {
+
+            synchronized (queue) {
+                request = queue.getNextRequest();
+            }
+
+            if (request == null) break;
 
             try {
                 BookingValidator.validate(request, inventory);
 
-                String roomType = request.getRoomType();
+                // 🔒 CRITICAL SECTION
+                synchronized (this) {
 
-                String roomId = generateRoomId(roomType);
+                    String roomType = request.getRoomType();
 
-                allocatedRooms
-                        .computeIfAbsent(roomType, k -> new HashSet<>())
-                        .add(roomId);
+                    String roomId = generateRoomId(roomType);
 
-                inventory.reduceAvailability(roomType);
+                    allocatedRooms
+                            .computeIfAbsent(roomType, k -> new HashSet<>())
+                            .add(roomId);
 
-                history.addBooking(request);
+                    inventory.reduceAvailability(roomType);
 
-                // ✅ register for cancellation
-                cancellationService.registerReservation(roomId, roomType);
+                    history.addBooking(request);
 
-                System.out.println("Booking CONFIRMED for " +
-                        request.getGuestName() +
-                        " | Room ID: " + roomId);
+                    cancellationService.registerReservation(roomId, roomType);
+
+                    System.out.println(Thread.currentThread().getName() +
+                            " CONFIRMED for " +
+                            request.getGuestName() +
+                            " | Room ID: " + roomId);
+                }
 
             } catch (InvalidBookingException e) {
 
-                System.out.println("Booking FAILED for " +
-                        (request != null ? request.getGuestName() : "Unknown") +
-                        " | Reason: " + e.getMessage());
+                System.out.println(Thread.currentThread().getName() +
+                        " FAILED for " +
+                        request.getGuestName() +
+                        " | " + e.getMessage());
             }
         }
     }

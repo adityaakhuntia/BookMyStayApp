@@ -9,15 +9,14 @@ class BookingRequestQueue {
         queue = new LinkedList<>();
     }
 
-    public void addRequest(Reservation reservation) {
+    public synchronized void addRequest(Reservation reservation) {
         queue.add(reservation);
-        System.out.println("Request added for " +
-                reservation.getGuestName() +
-                " (" + reservation.getRoomType() + ")");
+        System.out.println(Thread.currentThread().getName() +
+                " added request for " +
+                reservation.getGuestName());
     }
 
-    // ✅ NEW (UC6)
-    public Reservation getNextRequest() {
+    public synchronized Reservation getNextRequest() {
         return queue.poll();
     }
 }

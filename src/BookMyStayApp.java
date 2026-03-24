@@ -2,33 +2,47 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Welcome to BookMyStayApp v1.0 =====");
+        System.out.println("===== Concurrent Booking Simulation =====");
 
         RoomInventory inventory = new RoomInventory();
         BookingRequestQueue queue = new BookingRequestQueue();
         BookingHistory history = new BookingHistory();
-
-        // ✅ NEW
         CancellationService cancellationService =
                 new CancellationService(inventory, history);
 
-        // Requests
-        queue.addRequest(new Reservation("Aditya", "Single Room"));
-        queue.addRequest(new Reservation("Rahul", "Suite Room"));
+        // MANY requests (simulate load)
+        queue.addRequest(new Reservation("A", "Suite Room"));
+        queue.addRequest(new Reservation("B", "Suite Room"));
+        queue.addRequest(new Reservation("C", "Suite Room"));
+        queue.addRequest(new Reservation("D", "Suite Room"));
+        queue.addRequest(new Reservation("E", "Suite Room"));
+
+        queue.addRequest(new Reservation("F", "Single Room"));
+        queue.addRequest(new Reservation("G", "Single Room"));
+        queue.addRequest(new Reservation("H", "Single Room"));
 
         BookingService bookingService =
                 new BookingService(inventory, queue, history, cancellationService);
 
-        bookingService.processBookings();
+        // 🔥 MULTIPLE THREADS
+        BookingWorker t1 = new BookingWorker(bookingService, "Thread-1");
+        BookingWorker t2 = new BookingWorker(bookingService, "Thread-2");
+        BookingWorker t3 = new BookingWorker(bookingService, "Thread-3");
 
-        // ⚡ TEST CANCELLATION
-        System.out.println("\n--- Testing Cancellation ---");
+        t1.start();
+        t2.start();
+        t3.start();
 
-        // ⚠️ paste one printed Room ID here after first run
-        // example:
-        // cancellationService.cancel("SI-123456");
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        // Reporting
+        System.out.println("\n--- FINAL REPORT ---");
+
         BookingReportService reportService =
                 new BookingReportService(history);
 
