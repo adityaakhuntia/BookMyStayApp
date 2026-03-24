@@ -4,23 +4,17 @@ public class BookMyStayApp {
 
         System.out.println("===== Welcome to BookMyStayApp v1.0 =====");
 
-        // Inventory (still read-only here)
         RoomInventory inventory = new RoomInventory();
+        BookingRequestQueue queue = new BookingRequestQueue();
 
-        // Queue for booking requests
-        BookingRequestQueue requestQueue = new BookingRequestQueue();
+        queue.addRequest(new Reservation("Aditya", "Single Room"));
+        queue.addRequest(new Reservation("Rahul", "Double Room"));
+        queue.addRequest(new Reservation("Priya", "Suite Room"));
+        queue.addRequest(new Reservation("Aman", "Suite Room"));
+        queue.addRequest(new Reservation("Neha", "Suite Room"));
 
-        // Sample booking requests
-        Reservation r1 = new Reservation("Aditya", "Single Room");
-        Reservation r2 = new Reservation("Rahul", "Double Room");
-        Reservation r3 = new Reservation("Priya", "Suite Room");
+        BookingService bookingService = new BookingService(inventory, queue);
 
-        // Add to queue (FIFO)
-        requestQueue.addRequest(r1);
-        requestQueue.addRequest(r2);
-        requestQueue.addRequest(r3);
-
-        // Display queue
-        requestQueue.displayQueue();
+        bookingService.processBookings();
     }
 }
