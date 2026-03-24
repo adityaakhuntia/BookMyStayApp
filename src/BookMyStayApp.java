@@ -8,20 +8,24 @@ public class BookMyStayApp {
         BookingRequestQueue queue = new BookingRequestQueue();
         BookingHistory history = new BookingHistory();
 
-        // Add booking requests
+        // ✅ VALID BOOKINGS
         queue.addRequest(new Reservation("Aditya", "Single Room"));
         queue.addRequest(new Reservation("Rahul", "Double Room"));
-        queue.addRequest(new Reservation("Priya", "Suite Room"));
+
+        // ❌ INVALID CASES (UC9 testing)
+        queue.addRequest(new Reservation("", "Suite Room")); // empty name
+        queue.addRequest(new Reservation("Priya", "Luxury Room")); // invalid type
+
+        // Overbooking test
         queue.addRequest(new Reservation("Aman", "Suite Room"));
         queue.addRequest(new Reservation("Neha", "Suite Room"));
+        queue.addRequest(new Reservation("Extra", "Suite Room")); // should fail
 
-        // Booking Service
         BookingService bookingService =
                 new BookingService(inventory, queue, history);
 
         bookingService.processBookings();
 
-        // Reporting
         BookingReportService reportService =
                 new BookingReportService(history);
 

@@ -16,11 +16,16 @@ class RoomInventory {
         return inventory.getOrDefault(roomType, 0);
     }
 
-    // ✅ NEW (UC6)
-    public void reduceAvailability(String roomType) {
+    // ✅ VALIDATION ADDED
+    public void reduceAvailability(String roomType) throws InvalidBookingException {
+
         int current = inventory.getOrDefault(roomType, 0);
-        if (current > 0) {
-            inventory.put(roomType, current - 1);
+
+        if (current <= 0) {
+            throw new InvalidBookingException(
+                    "Cannot reduce availability. No rooms left for " + roomType);
         }
+
+        inventory.put(roomType, current - 1);
     }
 }
