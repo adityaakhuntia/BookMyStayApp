@@ -35,9 +35,12 @@ class BookingService {
 
                 inventory.reduceAvailability(roomType);
 
+                String reservationId = roomId; // using roomId as reservationId
                 System.out.println("Booking CONFIRMED for " +
-                        request.getGuestName() +
-                        " | Room ID: " + roomId);
+        request.getGuestName() +
+        " | Reservation ID: " + reservationId);
+
+                        
 
             } else {
                 System.out.println("Booking FAILED for " +
@@ -50,4 +53,25 @@ class BookingService {
     private String generateRoomId(String roomType) {
         return roomType.substring(0, 2).toUpperCase() + "-" + System.nanoTime();
     }
+
+    public String processSingleBooking(Reservation request) {
+
+    String roomType = request.getRoomType();
+    int available = inventory.getAvailability(roomType);
+
+    if (available > 0) {
+
+        String roomId = generateRoomId(roomType);
+
+        allocatedRooms
+                .computeIfAbsent(roomType, k -> new HashSet<>())
+                .add(roomId);
+
+        inventory.reduceAvailability(roomType);
+
+        return roomId; // reservation ID
+    }
+
+    return null;
+}
 }
