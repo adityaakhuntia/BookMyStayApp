@@ -8,14 +8,17 @@ class BookingService {
     private BookingRequestQueue queue;
     private HashMap<String, Set<String>> allocatedRooms;
     private BookingHistory history;
+    private CancellationService cancellationService; // NEW
 
     public BookingService(RoomInventory inventory,
                           BookingRequestQueue queue,
-                          BookingHistory history) {
+                          BookingHistory history,
+                          CancellationService cancellationService) {
 
         this.inventory = inventory;
         this.queue = queue;
         this.history = history;
+        this.cancellationService = cancellationService;
         allocatedRooms = new HashMap<>();
     }
 
@@ -28,7 +31,6 @@ class BookingService {
         while ((request = queue.getNextRequest()) != null) {
 
             try {
-                // ✅ VALIDATION (FAIL FAST)
                 BookingValidator.validate(request, inventory);
 
                 String roomType = request.getRoomType();
@@ -43,13 +45,15 @@ class BookingService {
 
                 history.addBooking(request);
 
+                // ✅ register for cancellation
+                cancellationService.registerReservation(roomId, roomType);
+
                 System.out.println("Booking CONFIRMED for " +
                         request.getGuestName() +
                         " | Room ID: " + roomId);
 
             } catch (InvalidBookingException e) {
 
-                // ✅ GRACEFUL FAILURE
                 System.out.println("Booking FAILED for " +
                         (request != null ? request.getGuestName() : "Unknown") +
                         " | Reason: " + e.getMessage());

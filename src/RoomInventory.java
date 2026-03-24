@@ -16,7 +16,6 @@ class RoomInventory {
         return inventory.getOrDefault(roomType, 0);
     }
 
-    // ✅ VALIDATION ADDED
     public void reduceAvailability(String roomType) throws InvalidBookingException {
 
         int current = inventory.getOrDefault(roomType, 0);
@@ -27,5 +26,11 @@ class RoomInventory {
         }
 
         inventory.put(roomType, current - 1);
+    }
+
+    // ✅ NEW (UC10 rollback)
+    public void increaseAvailability(String roomType) {
+        int current = inventory.getOrDefault(roomType, 0);
+        inventory.put(roomType, current + 1);
     }
 }
